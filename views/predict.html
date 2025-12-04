@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediksi Diabetes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .result.warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🩺 Prediksi Diabetes</h1>
+        <form id="diabetesForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="pregnancies">Kehamilan (Pregnancies):</label>
+                    <input type="number" id="pregnancies" name="Pregnancies" required min="0" step="1" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="glucose">Glukosa (Glucose):</label>
+                    <input type="number" id="glucose" name="Glucose" required min="0" step="1" value="100">
+                </div>
+                <div class="form-group">
+                    <label for="bloodPressure">Tekanan Darah (Blood Pressure):</label>
+                    <input type="number" id="bloodPressure" name="BloodPressure" required min="0" step="1" value="70">
+                </div>
+                <div class="form-group">
+                    <label for="skinThickness">Ketebalan Kulit (Skin Thickness):</label>
+                    <input type="number" id="skinThickness" name="SkinThickness" required min="0" step="1" value="20">
+                </div>
+                <div class="form-group">
+                    <label for="insulin">Insulin:</label>
+                    <input type="number" id="insulin" name="Insulin" required min="0" step="1" value="80">
+                </div>
+                <div class="form-group">
+                    <label for="bmi">BMI (Body Mass Index):</label>
+                    <input type="number" id="bmi" name="BMI" required min="0" step="0.1" value="25.0">
+                </div>
+                <div class="form-group">
+                    <label for="diabetesPedigreeFunction">Fungsi Silsilah Diabetes:</label>
+                    <input type="number" id="diabetesPedigreeFunction" name="DiabetesPedigreeFunction" required min="0" step="0.001" value="0.5">
+                </div>
+                <div class="form-group">
+                    <label for="age">Usia (Age):</label>
+                    <input type="number" id="age" name="Age" required min="0" step="1" value="30">
+                </div>
+            </div>
+            <button type="submit">Prediksi Sekarang</button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px;">Memproses prediksi...</p>
+        </div>
+        
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+        document.getElementById('diabetesForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = parseFloat(value);
+            });
+
+            const resultDiv = document.getElementById('result');
+            const loadingDiv = document.getElementById('loading');
+            
+            // Show loading
+            loadingDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+            resultDiv.className = 'result';
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                // Hide loading
+                loadingDiv.style.display = 'none';
+                resultDiv.style.display = 'block';
+
+                if (response.ok) {
+                    if (result.prediction.includes('peluang menderita diabetes')) {
+                        resultDiv.className = 'result warning';
+                    } else {
+                        resultDiv.className = 'result success';
+                    }
+                    
+                    resultDiv.innerHTML = `
+                        <h3>Hasil Prediksi:</h3>
+                        <p style="margin: 10px 0;">${result.prediction}</p>
+                        <hr style="margin: 15px 0;">
+                        <h4>Probabilitas:</h4>
+                        <p><strong>Tidak Diabetes:</strong> ${result.probabilities.negative}</p>
+                        <p><strong>Diabetes:</strong> ${result.probabilities.positive}</p>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<p><strong>Error:</strong> ${result.error}</p>`;
+                }
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<p><strong>Error:</strong> Gagal menghubungi server. ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

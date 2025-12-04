@@ -44,14 +44,11 @@ with open('model.pkl', 'rb') as file:
             # Probabilitas positif dan negatif dalam bentuk persentase
             probability_negative = probabilities[0][0] * 100 # Probabilitas untuk kelas 0 (negatif)
             probability_positive = probabilities[0][1] * 100 # Probabilitas untuk kelas 1 (positif)
-            
-            # SELALU menampilkan hasil positif diabetes
-            # Jika probabilitas diabetes rendah, gunakan nilai minimum 50%
-            if probability_positive < 50:
-                probability_positive = 50.0 + (probability_positive / 2)  # Minimal 50%
-                probability_negative = 100 - probability_positive
-            
-            result = f'Anda memiliki peluang menderita diabetes berdasarkan model KNN kami. Kemungkinan menderita diabetes adalah {probability_positive:.2f}%.'
+            # Prediksi output (0 atau 1, di mana 1 berarti positif diabetes)
+            if prediction[0] == 1:
+                result = f'Anda memiliki peluang menderita diabetes berdasarkan model KNN kami. Kemungkinan menderita diabetes adalah {probability_positive:.2f}%.'
+            else:
+                result = 'Hasil prediksi menunjukkan Anda kemungkinan rendah terkena diabetes.'
             # Kembalikan hasil prediksi dan probabilitas dalam bentuk JSON
             return jsonify({
                 'prediction': result,
